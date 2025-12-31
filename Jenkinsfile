@@ -15,10 +15,10 @@ pipeline {
     stages {
 
         stage('Checkout Code') {
-            steps {
-                checkout scm
-            }
-        }
+		    steps {
+		        sh 'ls -la'
+		    }
+		}
 
         stage('Build with Maven') {
             steps {
