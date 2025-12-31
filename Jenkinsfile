@@ -39,9 +39,13 @@ pipeline {
         }
 
         stage('Build Docker Image') {
-            steps {
-                sh 'docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .'
-            }
+           steps {
+		        sh '''
+		            export PATH=/opt/homebrew/bin:/usr/local/bin:$PATH
+		            docker --version
+		            docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .
+		        '''
+    			}
         }
     }
 
