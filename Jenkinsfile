@@ -39,22 +39,39 @@ pipeline {
         }
 
         stage('Build Docker Image') {
-           steps {
-		        sh '''
-		            export PATH=/opt/homebrew/bin:/usr/local/bin:$PATH
-		            docker --version
-		            docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .
-		        '''
-    			}
+            steps {
+                sh '''
+                    export PATH=/opt/homebrew/bin:/usr/local/bin:$PATH
+                    docker --version
+                    docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .
+                '''
+            }
+        }
+
+        stage('Docker Login & Push') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-creds',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    sh '''
+                        export PATH=/opt/homebrew/bin:/usr/local/bin:$PATH
+                        echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                        docker push ${DOCKER_IMAGE}:${DOCKER_TAG}
+                    '''
+                }
+            }
         }
     }
 
     post {
         success {
-            echo '✅ Build & Docker image successful'
+            echo '✅ Build, Docker image creation & push successful'
         }
         failure {
             echo '❌ Build failed'
         }
     }
 }
+
